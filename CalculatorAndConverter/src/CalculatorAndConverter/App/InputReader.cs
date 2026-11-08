@@ -30,6 +30,12 @@ public static class InputReader
         }
     }
 
+    public static string ReadLine(string prompt)
+    {
+        Console.Write(prompt);
+        return ReadLineOrCancel();
+    }
+
     public static IReadOnlyList<double> ReadNumbers(string prompt, int minCount)
     {
         Console.WriteLine(prompt);

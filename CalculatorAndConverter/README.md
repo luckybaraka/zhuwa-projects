@@ -6,8 +6,12 @@ Ghanaian Cedi (GHS) to US Dollars (USD) using an exchange rate you type in.
 
 ## Features
 
-- **Calculator** — add, subtract, multiply and divide across as many numbers as
-  you like (the chosen operation is applied left-to-right, e.g. `2 + 3 + 4 + 5`)
+- **Calculator**
+  - Add, subtract, multiply and divide across as many numbers as you like (the
+    chosen operation is applied left-to-right, e.g. `2 + 3 + 4 + 5`)
+  - **Expression evaluator** — type a full mixed expression such as
+    `2 * 4 - 3 / 5` and it is evaluated with the usual operator precedence
+    (`*` and `/` before `+` and `-`), including parentheses and unary minus
 - **Unit converter**
   - Kilometres ⇄ Miles
   - Celsius ⇄ Fahrenheit
@@ -59,13 +63,33 @@ Enter the numbers (at least two):
 Result: 30
 ```
 
+Or evaluate a full expression:
+
+```
+Calculator
+1. Add
+2. Subtract
+3. Multiply
+4. Divide
+5. Evaluate an expression (e.g. 2 * 4 - 3 / 5)
+6. Back
+Choose an operation: 5
+
+Expression evaluator
+Type a maths expression using + - * / and ( ), for example:
+  2 * 4 - 3 / 5
+Use '.' as the decimal point. Leave it blank to go back.
+Expression: 2 * 4 - 3 / 5
+= 7.4
+```
+
 ## How to run the tests
 
 ```bash
 dotnet test
 ```
 
-This runs the automated test suite (40 tests covering every calculation and
+This runs the automated test suite (62 tests covering every calculation and
 conversion, including error cases such as divide-by-zero, invalid rates, and
 malformed API responses).
 
@@ -83,6 +107,7 @@ CalculatorAndConverter.slnx
 │       │   └── LiveFxRateService.cs
 │       └── Core/                      Pure logic (no console or network I/O)
 │           ├── Calculator.cs
+│           ├── ExpressionEvaluator.cs
 │           ├── DistanceConverter.cs
 │           ├── TemperatureConverter.cs
 │           ├── CurrencyConverter.cs
@@ -144,6 +169,11 @@ Other decisions:
   there is no internet, the app falls back to the built-in rate instead of
   failing. The built-in rate is a fixed snapshot and will drift over time.
 - Only the unit pairs listed above are supported.
-- The calculator applies a single operation across all the numbers you enter
-  (left-to-right); it does not evaluate mixed expressions such as `2 + 3 * 4`.
+- The calculator offers two modes: a single operation applied across a list of
+  numbers, and a full expression evaluator for mixed expressions such as
+  `2 + 3 * 4`. The expression evaluator supports `+ - * /`, parentheses and
+  unary `+`/`-`, but not other functions (powers, roots, etc.).
+- Expressions use `.` as the decimal point (invariant culture) so the syntax is
+  unambiguous, whereas the single-operation mode and the converters read numbers
+  using the machine's current culture.
 ```

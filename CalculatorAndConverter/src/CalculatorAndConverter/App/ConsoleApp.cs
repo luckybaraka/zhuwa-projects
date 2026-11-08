@@ -49,11 +49,18 @@ public sealed class ConsoleApp
         Console.WriteLine("2. Subtract");
         Console.WriteLine("3. Multiply");
         Console.WriteLine("4. Divide");
-        Console.WriteLine("5. Back");
+        Console.WriteLine("5. Evaluate an expression (e.g. 2 * 4 - 3 / 5)");
+        Console.WriteLine("6. Back");
 
-        int choice = InputReader.ReadMenuChoice("Choose an operation: ", 1, 5);
-        if (choice == 5)
+        int choice = InputReader.ReadMenuChoice("Choose an operation: ", 1, 6);
+        if (choice == 6)
             return;
+
+        if (choice == 5)
+        {
+            RunExpression();
+            return;
+        }
 
         IReadOnlyList<double> numbers = InputReader.ReadNumbers("Enter the numbers (at least two):", 2);
 
@@ -72,6 +79,34 @@ public sealed class ConsoleApp
         catch (DivideByZeroException ex)
         {
             Console.WriteLine(ex.Message);
+        }
+    }
+
+    private static void RunExpression()
+    {
+        Console.WriteLine();
+        Console.WriteLine("Expression evaluator");
+        Console.WriteLine("Type a maths expression using + - * / and ( ), for example:");
+        Console.WriteLine("  2 * 4 - 3 / 5");
+        Console.WriteLine("Use '.' as the decimal point. Leave it blank to go back.");
+
+        while (true)
+        {
+            string input = InputReader.ReadLine("Expression: ");
+            if (input.Trim().Length == 0)
+                return;
+
+            try
+            {
+                double result = ExpressionEvaluator.Evaluate(input);
+                Console.WriteLine($"= {result}");
+                return;
+            }
+            catch (Exception ex) when (ex is FormatException or DivideByZeroException)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Please try again, or leave it blank to go back.");
+            }
         }
     }
 
