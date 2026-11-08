@@ -10,7 +10,8 @@ Ghanaian Cedi (GHS) to US Dollars (USD) using an exchange rate you type in.
 - **Unit converter**
   - Kilometres ⇄ Miles
   - Celsius ⇄ Fahrenheit
-- **Currency converter** — GHS → USD using a rate you provide
+- **Currency converter** — GHS → USD, with three rate sources: a **live rate**
+  fetched online, a built-in offline rate, or a rate you type in yourself
 - **Safe input handling** — invalid input is rejected with a clear message and
   the program simply asks again instead of crashing
 
@@ -60,8 +61,9 @@ Result: 20
 dotnet test
 ```
 
-This runs the automated test suite (28 tests covering every calculation and
-conversion, including error cases such as divide-by-zero and invalid rates).
+This runs the automated test suite (33 tests covering every calculation and
+conversion, including error cases such as divide-by-zero, invalid rates, and
+malformed API responses).
 
 ## Project structure
 
@@ -70,15 +72,17 @@ CalculatorAndConverter.slnx
 ├── src/
 │   └── CalculatorAndConverter/        Console application
 │       ├── Program.cs                 Entry point
-│       ├── App/                       User interface (menus, input reading)
+│       ├── App/                       User interface and I/O (menus, input, network)
 │       │   ├── ConsoleApp.cs
 │       │   ├── InputReader.cs
-│       │   └── InputCancelledException.cs
-│       └── Core/                      Pure calculation logic (no console I/O)
+│       │   ├── InputCancelledException.cs
+│       │   └── LiveFxRateService.cs
+│       └── Core/                      Pure logic (no console or network I/O)
 │           ├── Calculator.cs
 │           ├── DistanceConverter.cs
 │           ├── TemperatureConverter.cs
-│           └── CurrencyConverter.cs
+│           ├── CurrencyConverter.cs
+│           └── ExchangeRateParser.cs
 └── tests/
     └── CalculatorAndConverter.Tests/  xUnit test project
 ```
@@ -107,14 +111,24 @@ Other decisions:
   still gets a friendly message instead of a crash.
 - **One kilometre = 0.621371 miles** is kept in a single named constant so the
   two distance conversions can never disagree with each other.
+- **Live FX is split in two:** the network call lives in the App layer
+  (`LiveFxRateService`) while the JSON parsing lives in the Core layer
+  (`ExchangeRateParser`). The parser is pure, so it is unit-tested with sample
+  responses without ever touching the network. If the fetch fails, the app
+  catches the error and falls back to the built-in rate — it never crashes.
 
 ## Assumptions
 
-- The GHS → USD rate is entered as **how many USD one GHS is worth**. You can
-  type your own rate, or press Enter to use the built-in current rate of
-  **1 GHS = 0.0859 USD** (mid-market rate as of 6 November 2026, source
-  [Wise](https://wise.com/us/currency-converter/ghs-to-usd-rate)). Amount and
-  rate must both be greater than zero.
+- The GHS → USD rate is **how many USD one GHS is worth**. The converter offers
+  three sources:
+  1. **Live rate** — fetched from the free [open.er-api.com](https://www.exchangerate-api.com/docs/free)
+     endpoint (no API key required). Needs an internet connection.
+  2. **Built-in rate** — a fixed offline value of **1 GHS = 0.0859 USD**
+     (mid-market rate as of 6 November 2026, source
+     [Wise](https://wise.com/us/currency-converter/ghs-to-usd-rate)). Used
+     automatically if the live fetch fails.
+  3. **Your own rate** — type any value you like.
+- Amount and rate must both be greater than zero.
 - Numbers are read using the machine's current culture (so `.` or `,` as the
   decimal separator depends on your system settings).
 - Converted results are displayed rounded to four decimal places; money is shown
@@ -122,9 +136,9 @@ Other decisions:
 
 ## Known limitations
 
-- The built-in exchange rate is a fixed value documented above; it is not fetched
-  live, so it will drift from the real market rate over time. Type your own rate
-  to override it with an up-to-date figure.
+- The live rate depends on a third-party API being reachable; if it is down or
+  there is no internet, the app falls back to the built-in rate instead of
+  failing. The built-in rate is a fixed snapshot and will drift over time.
 - Only the unit pairs listed above are supported.
 - The calculator works on two numbers at a time; it does not evaluate full
   expressions such as `2 + 3 * 4`.

@@ -119,14 +119,47 @@ public sealed class ConsoleApp
         Console.WriteLine();
         Console.WriteLine("Currency converter (GHS to USD)");
 
-        Console.WriteLine($"Current rate: 1 GHS = {CurrencyConverter.ReferenceUsdPerGhs} USD (as of {CurrencyConverter.ReferenceRateAsOf}).");
-
         decimal amount = InputReader.ReadPositiveDecimal("Enter amount in GHS: ");
-        decimal usdPerGhs = InputReader.ReadPositiveDecimalOrDefault(
-            "Enter exchange rate (USD for 1 GHS), or press Enter for the current rate: ",
-            CurrencyConverter.ReferenceUsdPerGhs);
+        decimal usdPerGhs = ChooseExchangeRate();
 
         decimal usd = CurrencyConverter.GhsToUsd(amount, usdPerGhs);
-        Console.WriteLine($"{amount:0.00} GHS = {usd:0.00} USD");
+        Console.WriteLine($"{amount:0.00} GHS = {usd:0.00} USD  (rate: 1 GHS = {usdPerGhs} USD)");
+    }
+
+    private static decimal ChooseExchangeRate()
+    {
+        Console.WriteLine("Exchange rate source:");
+        Console.WriteLine("1. Fetch the live rate online");
+        Console.WriteLine($"2. Use the built-in rate ({CurrencyConverter.ReferenceUsdPerGhs} USD, as of {CurrencyConverter.ReferenceRateAsOf})");
+        Console.WriteLine("3. Enter my own rate");
+
+        return InputReader.ReadMenuChoice("Choose a rate source: ", 1, 3) switch
+        {
+            1 => TryFetchLiveRate() ?? UseBuiltInRate(),
+            2 => CurrencyConverter.ReferenceUsdPerGhs,
+            _ => InputReader.ReadPositiveDecimal("Enter exchange rate (USD for 1 GHS): "),
+        };
+    }
+
+    private static decimal? TryFetchLiveRate()
+    {
+        Console.WriteLine("Fetching the live rate...");
+        try
+        {
+            decimal rate = new LiveFxRateService().GetUsdPerGhs();
+            Console.WriteLine($"Live rate: 1 GHS = {rate} USD");
+            return rate;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Could not fetch the live rate ({ex.Message}).");
+            return null;
+        }
+    }
+
+    private static decimal UseBuiltInRate()
+    {
+        Console.WriteLine($"Using the built-in rate instead ({CurrencyConverter.ReferenceUsdPerGhs} USD).");
+        return CurrencyConverter.ReferenceUsdPerGhs;
     }
 }
