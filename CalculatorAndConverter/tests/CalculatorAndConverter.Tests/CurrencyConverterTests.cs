@@ -27,4 +27,11 @@ public class CurrencyConverterTests
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => CurrencyConverter.GhsToUsd(100, rate));
     }
+
+    [Fact]
+    public void GhsToUsd_WithReferenceRate_ConvertsCorrectly()
+    {
+        Assert.True(CurrencyConverter.ReferenceUsdPerGhs > 0);
+        Assert.Equal(8.59m, CurrencyConverter.GhsToUsd(100, CurrencyConverter.ReferenceUsdPerGhs));
+    }
 }

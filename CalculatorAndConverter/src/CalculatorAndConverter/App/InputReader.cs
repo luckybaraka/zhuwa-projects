@@ -44,6 +44,23 @@ public static class InputReader
         }
     }
 
+    public static decimal ReadPositiveDecimalOrDefault(string prompt, decimal defaultValue)
+    {
+        while (true)
+        {
+            Console.Write(prompt);
+            string line = ReadLineOrCancel();
+
+            if (string.IsNullOrWhiteSpace(line))
+                return defaultValue;
+
+            if (decimal.TryParse(line, out decimal value) && value > 0)
+                return value;
+
+            Console.WriteLine("Please enter a number greater than zero, or press Enter for the default.");
+        }
+    }
+
     private static string ReadLineOrCancel()
     {
         string? line = Console.ReadLine();

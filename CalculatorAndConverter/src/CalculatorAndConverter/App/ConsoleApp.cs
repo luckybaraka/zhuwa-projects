@@ -119,8 +119,12 @@ public sealed class ConsoleApp
         Console.WriteLine();
         Console.WriteLine("Currency converter (GHS to USD)");
 
+        Console.WriteLine($"Current rate: 1 GHS = {CurrencyConverter.ReferenceUsdPerGhs} USD (as of {CurrencyConverter.ReferenceRateAsOf}).");
+
         decimal amount = InputReader.ReadPositiveDecimal("Enter amount in GHS: ");
-        decimal usdPerGhs = InputReader.ReadPositiveDecimal("Enter exchange rate (USD for 1 GHS): ");
+        decimal usdPerGhs = InputReader.ReadPositiveDecimalOrDefault(
+            "Enter exchange rate (USD for 1 GHS), or press Enter for the current rate: ",
+            CurrencyConverter.ReferenceUsdPerGhs);
 
         decimal usd = CurrencyConverter.GhsToUsd(amount, usdPerGhs);
         Console.WriteLine($"{amount:0.00} GHS = {usd:0.00} USD");

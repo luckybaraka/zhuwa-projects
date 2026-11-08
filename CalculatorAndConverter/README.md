@@ -110,8 +110,11 @@ Other decisions:
 
 ## Assumptions
 
-- The GHS → USD rate is entered as **how many USD one GHS is worth**
-  (for example, `0.065`). Amount and rate must both be greater than zero.
+- The GHS → USD rate is entered as **how many USD one GHS is worth**. You can
+  type your own rate, or press Enter to use the built-in current rate of
+  **1 GHS = 0.0859 USD** (mid-market rate as of 6 November 2026, source
+  [Wise](https://wise.com/us/currency-converter/ghs-to-usd-rate)). Amount and
+  rate must both be greater than zero.
 - Numbers are read using the machine's current culture (so `.` or `,` as the
   decimal separator depends on your system settings).
 - Converted results are displayed rounded to four decimal places; money is shown
@@ -119,7 +122,9 @@ Other decisions:
 
 ## Known limitations
 
-- The exchange rate is typed in manually; there is no live rate lookup.
+- The built-in exchange rate is a fixed value documented above; it is not fetched
+  live, so it will drift from the real market rate over time. Type your own rate
+  to override it with an up-to-date figure.
 - Only the unit pairs listed above are supported.
 - The calculator works on two numbers at a time; it does not evaluate full
   expressions such as `2 + 3 * 4`.

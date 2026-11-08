@@ -2,6 +2,9 @@ namespace CalculatorAndConverter.Core;
 
 public static class CurrencyConverter
 {
+    public const decimal ReferenceUsdPerGhs = 0.0859m;
+    public const string ReferenceRateAsOf = "6 November 2026";
+
     public static decimal GhsToUsd(decimal amountGhs, decimal usdPerGhs)
     {
         if (amountGhs < 0)
