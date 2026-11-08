@@ -55,17 +55,16 @@ public sealed class ConsoleApp
         if (choice == 5)
             return;
 
-        double a = InputReader.ReadDouble("Enter the first number: ");
-        double b = InputReader.ReadDouble("Enter the second number: ");
+        IReadOnlyList<double> numbers = InputReader.ReadNumbers("Enter the numbers (at least two):", 2);
 
         try
         {
             double result = choice switch
             {
-                1 => Calculator.Add(a, b),
-                2 => Calculator.Subtract(a, b),
-                3 => Calculator.Multiply(a, b),
-                _ => Calculator.Divide(a, b),
+                1 => Calculator.Add(numbers),
+                2 => Calculator.Subtract(numbers),
+                3 => Calculator.Multiply(numbers),
+                _ => Calculator.Divide(numbers),
             };
 
             Console.WriteLine($"Result: {result}");

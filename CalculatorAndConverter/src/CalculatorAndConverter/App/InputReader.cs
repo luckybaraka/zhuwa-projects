@@ -30,6 +30,32 @@ public static class InputReader
         }
     }
 
+    public static IReadOnlyList<double> ReadNumbers(string prompt, int minCount)
+    {
+        Console.WriteLine(prompt);
+        var values = new List<double>();
+
+        while (true)
+        {
+            Console.Write($"  Number {values.Count + 1} (blank to finish): ");
+            string line = ReadLineOrCancel();
+
+            if (line.Length == 0)
+            {
+                if (values.Count >= minCount)
+                    return values;
+
+                Console.WriteLine($"Please enter at least {minCount} numbers.");
+                continue;
+            }
+
+            if (double.TryParse(line, out double value))
+                values.Add(value);
+            else
+                Console.WriteLine("That is not a valid number. Please try again.");
+        }
+    }
+
     public static decimal ReadPositiveDecimal(string prompt)
     {
         while (true)

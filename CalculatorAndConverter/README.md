@@ -6,7 +6,8 @@ Ghanaian Cedi (GHS) to US Dollars (USD) using an exchange rate you type in.
 
 ## Features
 
-- **Calculator** — add, subtract, multiply and divide
+- **Calculator** — add, subtract, multiply and divide across as many numbers as
+  you like (the chosen operation is applied left-to-right, e.g. `2 + 3 + 4 + 5`)
 - **Unit converter**
   - Kilometres ⇄ Miles
   - Celsius ⇄ Fahrenheit
@@ -50,9 +51,12 @@ Calculator
 4. Divide
 5. Back
 Choose an operation: 1
-Enter the first number: 12
-Enter the second number: 8
-Result: 20
+Enter the numbers (at least two):
+  Number 1 (blank to finish): 12
+  Number 2 (blank to finish): 8
+  Number 3 (blank to finish): 10
+  Number 4 (blank to finish):
+Result: 30
 ```
 
 ## How to run the tests
@@ -61,7 +65,7 @@ Result: 20
 dotnet test
 ```
 
-This runs the automated test suite (33 tests covering every calculation and
+This runs the automated test suite (40 tests covering every calculation and
 conversion, including error cases such as divide-by-zero, invalid rates, and
 malformed API responses).
 
@@ -140,6 +144,6 @@ Other decisions:
   there is no internet, the app falls back to the built-in rate instead of
   failing. The built-in rate is a fixed snapshot and will drift over time.
 - Only the unit pairs listed above are supported.
-- The calculator works on two numbers at a time; it does not evaluate full
-  expressions such as `2 + 3 * 4`.
+- The calculator applies a single operation across all the numbers you enter
+  (left-to-right); it does not evaluate mixed expressions such as `2 + 3 * 4`.
 ```

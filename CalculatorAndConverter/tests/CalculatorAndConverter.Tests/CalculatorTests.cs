@@ -44,4 +44,46 @@ public class CalculatorTests
     {
         Assert.Throws<DivideByZeroException>(() => Calculator.Divide(1, 0));
     }
+
+    [Fact]
+    public void Add_WithManyNumbers_ReturnsRunningSum()
+    {
+        Assert.Equal(14, Calculator.Add(new double[] { 2, 3, 4, 5 }));
+    }
+
+    [Fact]
+    public void Subtract_WithManyNumbers_SubtractsLeftToRight()
+    {
+        Assert.Equal(85, Calculator.Subtract(new double[] { 100, 10, 5 }));
+    }
+
+    [Fact]
+    public void Multiply_WithManyNumbers_ReturnsRunningProduct()
+    {
+        Assert.Equal(24, Calculator.Multiply(new double[] { 2, 3, 4 }));
+    }
+
+    [Fact]
+    public void Divide_WithManyNumbers_DividesLeftToRight()
+    {
+        Assert.Equal(5, Calculator.Divide(new double[] { 100, 4, 5 }));
+    }
+
+    [Fact]
+    public void Add_WithSingleNumber_ReturnsThatNumber()
+    {
+        Assert.Equal(7, Calculator.Add(new double[] { 7 }));
+    }
+
+    [Fact]
+    public void Divide_ByZeroAmongManyNumbers_Throws()
+    {
+        Assert.Throws<DivideByZeroException>(() => Calculator.Divide(new double[] { 10, 0, 2 }));
+    }
+
+    [Fact]
+    public void Add_WithNoNumbers_Throws()
+    {
+        Assert.Throws<ArgumentException>(() => Calculator.Add(Array.Empty<double>()));
+    }
 }
