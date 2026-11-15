@@ -32,7 +32,11 @@ public static class Program
             Console.WriteLine("4) Quit");
             Console.Write("Choose an option: ");
 
-            switch (Console.ReadLine()?.Trim())
+            string? choice = Console.ReadLine();
+            if (choice is null) // stdin closed (EOF / Ctrl+Z) — exit cleanly
+                return;
+
+            switch (choice.Trim())
             {
                 case "1":
                     AddStudent(book);
@@ -64,9 +68,12 @@ public static class Program
             return;
         }
 
-        int score = ReadScore();
-        book.Add(name, score);
-        Console.WriteLine($"Added {name} with score {score} (grade {GradeCalculator.LetterGrade(score)}).");
+        int? score = ReadScore();
+        if (score is null) // stdin closed mid-entry
+            return;
+
+        book.Add(name, score.Value);
+        Console.WriteLine($"Added {name} with score {score} (grade {GradeCalculator.LetterGrade(score.Value)}).");
     }
 
     /// <summary>Lists every student with their score and letter grade.</summary>
@@ -101,13 +108,18 @@ public static class Program
         Console.WriteLine($"Lowest   : {book.Lowest()}");
     }
 
-    /// <summary>Reads a valid score (0-100), re-prompting on bad input.</summary>
-    private static int ReadScore()
+    /// <summary>
+    /// Reads a valid score (0-100), re-prompting on bad input.
+    /// Returns null if stdin is closed (EOF).
+    /// </summary>
+    private static int? ReadScore()
     {
         while (true)
         {
             Console.Write($"Score ({GradeCalculator.MinScore}-{GradeCalculator.MaxScore}): ");
             string? input = Console.ReadLine();
+            if (input is null)
+                return null;
 
             if (int.TryParse(input, out int score) && GradeCalculator.IsValidScore(score))
                 return score;

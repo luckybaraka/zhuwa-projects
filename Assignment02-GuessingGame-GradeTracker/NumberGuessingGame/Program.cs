@@ -36,7 +36,11 @@ public static class Program
             Console.WriteLine("4) Quit");
             Console.Write("Choose an option: ");
 
-            switch (Console.ReadLine()?.Trim())
+            string? choice = Console.ReadLine();
+            if (choice is null) // stdin closed (EOF / Ctrl+Z) — exit cleanly
+                return;
+
+            switch (choice.Trim())
             {
                 case "1":
                     PlayRound(maxAttempts: 10);
@@ -67,8 +71,11 @@ public static class Program
 
         while (!game.IsOver)
         {
-            int guess = ReadGuess(game.AttemptsRemaining);
-            GuessOutcome outcome = game.Guess(guess);
+            int? guess = ReadGuess(game.AttemptsRemaining);
+            if (guess is null) // stdin closed mid-round
+                return;
+
+            GuessOutcome outcome = game.Guess(guess.Value);
 
             switch (outcome)
             {
@@ -88,13 +95,18 @@ public static class Program
             Console.WriteLine($"Out of tries! The number was {game.Target}.");
     }
 
-    /// <summary>Reads a valid integer guess, re-prompting on bad input.</summary>
-    private static int ReadGuess(int attemptsRemaining)
+    /// <summary>
+    /// Reads a valid integer guess, re-prompting on bad input.
+    /// Returns null if stdin is closed (EOF).
+    /// </summary>
+    private static int? ReadGuess(int attemptsRemaining)
     {
         while (true)
         {
             Console.Write($"[{attemptsRemaining} left] Your guess ({Low}-{High}): ");
             string? input = Console.ReadLine();
+            if (input is null)
+                return null;
 
             if (int.TryParse(input, out int guess) && guess >= Low && guess <= High)
                 return guess;
