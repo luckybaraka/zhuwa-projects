@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="GameLogic/GameLogic.csproj" />
+  <Project Path="GradeLogic/GradeLogic.csproj" />
+  <Project Path="GradeTracker/GradeTracker.csproj" />
+  <Project Path="NumberGuessingGame/NumberGuessingGame.csproj" />
+  <Project Path="Tests/Tests.csproj" />
+</Solution>
