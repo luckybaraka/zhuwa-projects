@@ -97,3 +97,38 @@ Assignment02-GuessingGame-GradeTracker/
 - **Deterministic randomness.** `GuessingGame.CreateRandom` takes a `Random` instance, so tests can pass a fixed seed and assert behaviour reliably.
 - **Validation at the boundary.** The libraries validate their own inputs (range, empty sets, blank names) and throw clear exceptions; the console layer catches bad user input early and re-prompts.
 - **Scores stored in an array.** `GradeBook.Scores()` returns an `int[]`, and all statistics operate on that array, as the assignment requires.
+
+---
+
+## Testing
+
+Automated tests live in the `Tests` project (xUnit) and cover the library logic, not the console I/O:
+
+- **GuessingGame** — correct/too-low/too-high outcomes, win and game-over state, attempt tracking, guessing after the game ends, constructor validation, and that `CreateRandom` stays within range.
+- **GradeCalculator** — average (including non-integer means), highest, lowest, single-score and empty-array cases, and the valid-score range check.
+- **Letter grades & GradeBook** — every A–F boundary, out-of-range failures, insertion order, name trimming, blank-name/invalid-score rejection, and that statistics reflect the added students.
+
+Run them with:
+
+```bash
+dotnet test
+```
+
+All **43 tests** pass.
+
+---
+
+## Assumptions
+
+- Scores are whole numbers from **0 to 100**.
+- Each student has a **single** score; the "grade for each student" is derived from that score.
+- The guessing-game range is fixed at **1–100**; difficulty only changes the number of tries.
+- The letter-grade scale is the common one: **A** 90+, **B** 80+, **C** 70+, **D** 60+, **F** below 60.
+- Data is held in memory for the duration of a run; there is no file or database persistence.
+
+## Known limitations
+
+- **No persistence.** Students and game results are lost when the app exits.
+- **Single score per student.** The tracker does not keep multiple assessments per student.
+- **English, console-only UI.** No localisation or graphical interface.
+- **Fixed guessing range.** The 1–100 range is not user-configurable (only the number of tries is).
