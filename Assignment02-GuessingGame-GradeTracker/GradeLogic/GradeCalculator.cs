@@ -53,6 +53,27 @@ public static class GradeCalculator
         return lowest;
     }
 
+    /// <summary>
+    /// Converts a numeric score into a letter grade using a standard scale:
+    /// A 90-100, B 80-89, C 70-79, D 60-69, F below 60.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The score is outside 0-100.</exception>
+    public static char LetterGrade(int score)
+    {
+        if (!IsValidScore(score))
+            throw new ArgumentOutOfRangeException(nameof(score),
+                $"Score must be between {MinScore} and {MaxScore}.");
+
+        return score switch
+        {
+            >= 90 => 'A',
+            >= 80 => 'B',
+            >= 70 => 'C',
+            >= 60 => 'D',
+            _ => 'F'
+        };
+    }
+
     /// <summary>True when the value is a valid score (0-100 inclusive).</summary>
     public static bool IsValidScore(int score) => score is >= MinScore and <= MaxScore;
 
