@@ -65,3 +65,35 @@ dotnet run --project GradeTracker
 ```bash
 dotnet test
 ```
+
+---
+
+## Architecture & design
+
+The solution separates **pure logic** from **console I/O**. Each app's console project only reads input and prints output; all rules and calculations live in a class library.
+
+```
+Assignment02-GuessingGame-GradeTracker/
+├── Assignment02.slnx          Solution file
+├── Directory.Build.props      Shared, strict build settings
+├── GameLogic/                 Guessing-game rules (no console code)
+│   ├── GuessingGame.cs        Target, attempts, win/over state, Guess()
+│   └── GuessOutcome.cs        TooLow / TooHigh / Correct
+├── NumberGuessingGame/        Console UI + menu for the game
+│   └── Program.cs
+├── GradeLogic/                Grade rules & statistics (no console code)
+│   ├── Student.cs             Name + Score, with a Grade property
+│   ├── GradeCalculator.cs     Average / Highest / Lowest / LetterGrade
+│   └── GradeBook.cs           Holds students, exposes scores as an array
+├── GradeTracker/              Console UI + menu for the tracker
+│   └── Program.cs
+└── Tests/                     xUnit tests for GameLogic and GradeLogic
+```
+
+### Key decisions
+
+- **Logic in libraries, UI in console apps.** Because `GuessingGame`, `GradeCalculator` and `GradeBook` have no `Console` dependency, they can be unit tested directly and reused. This is what makes meaningful automated testing possible.
+- **`Main` split into small methods.** Each console app breaks its flow into focused methods (`RunMenu`, `PlayRound`, `ReadGuess`, `AddStudent`, `ListStudents`, `ShowSummary`, `ReadScore`) rather than one long method.
+- **Deterministic randomness.** `GuessingGame.CreateRandom` takes a `Random` instance, so tests can pass a fixed seed and assert behaviour reliably.
+- **Validation at the boundary.** The libraries validate their own inputs (range, empty sets, blank names) and throw clear exceptions; the console layer catches bad user input early and re-prompts.
+- **Scores stored in an array.** `GradeBook.Scores()` returns an `int[]`, and all statistics operate on that array, as the assignment requires.
