@@ -132,3 +132,69 @@ All **43 tests** pass.
 - **Single score per student.** The tracker does not keep multiple assessments per student.
 - **English, console-only UI.** No localisation or graphical interface.
 - **Fixed guessing range.** The 1–100 range is not user-configurable (only the number of tries is).
+
+---
+
+## Sample runs
+
+### Number Guessing Game
+
+```
+=== Number Guessing Game ===
+
+1) Play (easy   - 10 tries)
+2) Play (normal -  7 tries)
+3) Play (hard   -  5 tries)
+4) Quit
+Choose an option: 2
+
+I'm thinking of a number between 1 and 100.
+You have 7 tries. Good luck!
+[7 left] Your guess (1-100): 50
+Too high. Aim lower.
+[6 left] Your guess (1-100): 25
+Too low. Aim higher.
+[5 left] Your guess (1-100): 37
+Too high. Aim lower.
+[4 left] Your guess (1-100): 31
+Correct! You got it in 4 tries. 🎉
+
+... (menu repeats) ...
+Choose an option: 4
+Thanks for playing. Goodbye!
+```
+
+### Grade Tracker
+
+```
+=== Grade Tracker ===
+
+1) Add a student score
+2) List students and grades
+3) Show summary (average / highest / lowest)
+4) Quit
+Choose an option: 1
+Student name: Alice
+Score (0-100): 95
+Added Alice with score 95 (grade A).
+
+... (add Bob 72, Carol 58) ...
+
+Choose an option: 2
+
+Name                   Score   Grade
+------------------------------------
+Alice                     95       A
+Bob                       72       C
+Carol                     58       F
+
+Choose an option: 3
+
+Students : 3
+Average  : 75.00
+Highest  : 95
+Lowest   : 58
+
+Choose an option: 4
+Goodbye!
+```
