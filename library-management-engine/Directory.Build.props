@@ -1,0 +1,21 @@
+<Project>
+  <!--
+    Single source of truth for build settings shared by every project in this solution.
+    Individual .csproj files must NOT repeat these values; they only declare what is
+    specific to them (output type, references, packages).
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Quality gates: analyzer + style warnings fail the build. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisMode>Recommended</AnalysisMode>
+
+    <!-- Deterministic, culture-independent behaviour for dates and money formatting. -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+</Project>

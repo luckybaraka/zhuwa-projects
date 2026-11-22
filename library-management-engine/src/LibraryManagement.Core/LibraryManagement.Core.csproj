@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Domain + application logic. No console I/O lives here. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="LibraryManagement.Core.Tests" />
+  </ItemGroup>
+
+</Project>

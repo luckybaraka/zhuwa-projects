@@ -1,0 +1,35 @@
+name: library-management-engine
+
+# Build and test Assignment 03 whenever its code (or this workflow) changes.
+on:
+  push:
+    paths:
+      - "library-management-engine/**"
+      - ".github/workflows/library-management-engine.yml"
+  pull_request:
+    paths:
+      - "library-management-engine/**"
+      - ".github/workflows/library-management-engine.yml"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: library-management-engine
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore LibraryManagement.slnx
+
+      # Warnings are errors (Directory.Build.props), so this also enforces analyzers and style.
+      - name: Build
+        run: dotnet build LibraryManagement.slnx --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test LibraryManagement.slnx --no-build --configuration Release --collect:"XPlat Code Coverage"
