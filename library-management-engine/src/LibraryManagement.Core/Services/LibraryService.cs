@@ -198,6 +198,110 @@ public sealed class LibraryService
         return Result.Success(new ReturnReceipt(loan, member, book, daysOverdue, fine));
     }
 
+    /// <summary>
+    /// Extends an active loan by another loan period. The extension starts from the current
+    /// due date, not from today, so renewing early never costs the member days.
+    /// </summary>
+    public Result<Loan> Renew(LoanId loanId)
+    {
+        var lookup = FindActiveLoan(loanId);
+        if (lookup.IsFailure)
+        {
+            return lookup;
+        }
+
+        var loan = lookup.Value;
+        var member = RequireMember(loan.MemberId);
+        var book = RequireBook(loan.Isbn);
+        var policy = member.Policy;
+
+        List<DomainError> errors = [];
+        if (book.Category == BookCategory.ShortLoan)
+        {
+            errors.Add(new DomainError(
+                ErrorCodes.RenewalNotAllowedForCategory,
+                $"'{book.Title}' is a short-loan item and cannot be renewed."));
+        }
+
+        if (loan.IsOverdueOn(Today))
+        {
+            errors.Add(new DomainError(
+                ErrorCodes.RenewalOverdue,
+                $"Loan {loan.Id} was due on {loan.DueOn:yyyy-MM-dd}; overdue items must be returned, not renewed."));
+        }
+
+        if (loan.RenewalCount >= policy.MaxRenewals)
+        {
+            errors.Add(new DomainError(
+                ErrorCodes.RenewalLimitReached,
+                policy.MaxRenewals == 0
+                    ? $"{policy.Type} members cannot renew loans."
+                    : $"Loan {loan.Id} has already been renewed {loan.RenewalCount} time(s), the most allowed for {policy.Type} members."));
+        }
+
+        if (errors.Count > 0)
+        {
+            return Result.Failure<Loan>(errors);
+        }
+
+        loan.Renew(loan.DueOn.AddDays(policy.LoanPeriodFor(book.Category)));
+        return Result.Success(loan);
+    }
+
+    // ---------------------------------------------------------------- Fines
+
+    /// <summary>
+    /// Records a payment against a member's fines. Overpayment is refused rather than
+    /// stored as credit: the library has no refund process, so it should never hold
+    /// money it does not need.
+    /// </summary>
+    /// <returns>The balance still outstanding after the payment.</returns>
+    public Result<decimal> PayFine(MemberId memberId, decimal amount)
+    {
+        if (_members.Find(memberId) is not { } member)
+        {
+            return Result.Failure<decimal>(MemberNotFound(memberId));
+        }
+
+        if (amount <= 0 || decimal.Round(amount, 2) != amount)
+        {
+            return Result.Failure<decimal>(new DomainError(
+                ErrorCodes.InvalidPaymentAmount,
+                "A payment must be a positive amount with at most two decimal places."));
+        }
+
+        if (amount > member.OutstandingFines)
+        {
+            return Result.Failure<decimal>(new DomainError(
+                ErrorCodes.OverPayment,
+                $"{member.Name} only owes {Money.Format(member.OutstandingFines)}."));
+        }
+
+        member.PayFine(amount);
+        return Result.Success(member.OutstandingFines);
+    }
+
+    // ---------------------------------------------------------------- Reports
+
+    /// <summary>
+    /// Every active loan past its due date, most overdue first, with the fine that would be
+    /// charged if it came back today.
+    /// </summary>
+    public IReadOnlyList<OverdueLoan> OverdueLoans()
+    {
+        var today = Today;
+        return [.. _loans.Active()
+            .Where(loan => loan.IsOverdueOn(today))
+            .Select(loan =>
+            {
+                var member = RequireMember(loan.MemberId);
+                var days = loan.DaysOverdueOn(today);
+                return new OverdueLoan(loan, member, RequireBook(loan.Isbn), days, member.Policy.CalculateFine(days));
+            })
+            .OrderByDescending(overdue => overdue.DaysOverdue)
+            .ThenBy(overdue => overdue.Loan.Id.Value)];
+    }
+
     public Loan? FindLoan(LoanId id) => _loans.Find(id);
 
     /// <summary>Every item currently out, oldest first.</summary>

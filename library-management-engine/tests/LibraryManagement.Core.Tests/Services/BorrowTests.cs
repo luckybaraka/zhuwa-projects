@@ -130,7 +130,7 @@ public class BorrowTests : LibraryServiceTestBase
     }
 
     [Fact]
-    public void Borrow_WithFinesAboveThreshold_IsRefused()
+    public void Borrow_WithFinesAboveThreshold_IsRefusedUntilPaidDown()
     {
         AddBook(TestData.CleanCode);
         AddBook(TestData.DesignPatterns, title: "Design Patterns");
@@ -140,6 +140,9 @@ public class BorrowTests : LibraryServiceTestBase
         Library.Return(loan.Id);
 
         Assert.True(Library.Borrow(member.Id, TestData.DesignPatterns).HasError(ErrorCodes.FinesTooHigh));
+
+        Library.PayFine(member.Id, 10m);             // back to the threshold: allowed again
+        Assert.True(Library.Borrow(member.Id, TestData.DesignPatterns).IsSuccess);
     }
 
     [Fact]
