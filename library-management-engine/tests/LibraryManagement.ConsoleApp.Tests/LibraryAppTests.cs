@@ -120,7 +120,37 @@ public class LibraryAppTests
         Assert.Contains("No loans yet.", output, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void MemberAccount_ShowsOverdueItemsBlockedStatusAndHistory()
+    {
+        var (_, output) = RunWithSampleData(
+            "7", "M-0001", "9780132350884",
+            "7", "M-0001", "9780201633610",
+            "13", "30",                     // both 16 days late
+            "8", "L-0001",                  // KES 160 fine -> blocked (> KES 100)
+            "6", "M-0001",
+            "0");
+
+        Assert.Contains("On loan:     1 of 3 (1 overdue)", output, StringComparison.Ordinal);
+        Assert.Contains("Fines owed:  KES 160.00 (borrowing blocked above KES 100.00)", output, StringComparison.Ordinal);
+        Assert.Contains("Loan history:", output, StringComparison.Ordinal);
+        Assert.Contains("returned 2026-12-02", output, StringComparison.Ordinal);
+        Assert.Contains("OVERDUE 16 days", output, StringComparison.Ordinal);
+    }
+
     // ---------------------------------------------------------------- Catalogue
+
+    [Fact]
+    public void AddCopies_BookAtMaximum_ExplainsAndAddsNothing()
+    {
+        var (_, output) = Run(
+            "1", "9780132350884", "Clean Code", "Robert C. Martin", "1", "100",
+            "1", "9780132350884",
+            "0");
+
+        Assert.Contains("It already has the maximum of 100 copies.", output, StringComparison.Ordinal);
+        Assert.Equal(100, _library.FindBook(Isbn.Parse("9780132350884"))!.Book.TotalCopies);
+    }
 
     [Fact]
     public void AddBook_NewTitle_ThenSameIsbnAddsCopies()
@@ -211,10 +241,11 @@ public class LibraryAppTests
             "7", "M-0001", "9780132350884",
             "7", "M-0002", "9780132350884",
             "8", "L-0001",
-            "8", "L-0001", "L-0002",
+            "8", "L-0001", "L-0099", "L-0002",
             "0");
 
         Assert.Contains("Loan L-0001 was already returned on 2026-11-02.", output, StringComparison.Ordinal);
+        Assert.Contains("There is no loan L-0099.", output, StringComparison.Ordinal);
         Assert.Contains("'Clean Code' returned by Brian Mwangi, on time. No fine.", output, StringComparison.Ordinal);
     }
 
