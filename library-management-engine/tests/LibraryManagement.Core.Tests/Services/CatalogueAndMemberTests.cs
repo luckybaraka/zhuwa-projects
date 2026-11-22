@@ -149,6 +149,15 @@ public class CatalogueAndMemberTests : LibraryServiceTestBase
     }
 
     [Fact]
+    public void FindMemberByEmail_IsCaseInsensitive()
+    {
+        var member = Register(email: "brian@example.org");
+
+        Assert.Same(member, Library.FindMemberByEmail(EmailAddress.Parse("Brian@Example.org")));
+        Assert.Null(Library.FindMemberByEmail(EmailAddress.Parse("nobody@example.org")));
+    }
+
+    [Fact]
     public void ListMembers_IsInRegistrationOrder()
     {
         Register(name: "Zed");

@@ -128,6 +128,13 @@ public sealed class LibraryService
 
     public Member? FindMember(MemberId id) => _members.Find(id);
 
+    /// <summary>Lets a UI check an address is free before asking for the rest of a form.</summary>
+    public Member? FindMemberByEmail(EmailAddress email)
+    {
+        ArgumentNullException.ThrowIfNull(email);
+        return _members.FindByEmail(email);
+    }
+
     /// <summary>All members in registration order.</summary>
     public IReadOnlyList<Member> ListMembers() => _members.All();
 
