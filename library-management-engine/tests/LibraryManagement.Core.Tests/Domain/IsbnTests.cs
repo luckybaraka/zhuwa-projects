@@ -11,6 +11,7 @@ public class IsbnTests
     [InlineData("0262033844", "9780262033848")]         // ISBN-10 converted to ISBN-13
     [InlineData("0-8044-2957-X", "9780804429573")]      // ISBN-10 with X check digit
     [InlineData("0-8044-2957-x", "9780804429573")]      // lower-case x accepted
+    [InlineData("979-10-90636-07-1", "9791090636071")]  // 979 prefix (no ISBN-10 form exists)
     public void TryParse_ValidInput_ReturnsCanonicalIsbn13(string input, string expected)
     {
         Assert.True(Isbn.TryParse(input, out var isbn));
@@ -30,6 +31,7 @@ public class IsbnTests
     [InlineData("X262033844")]      // X is only legal as the last ISBN-10 character
     [InlineData("978013235088A")]   // letter
     [InlineData("978_0132350884")]  // unsupported separator
+    [InlineData("4006381333931")]   // valid EAN-13 product barcode, but not a book (no 978/979 prefix)
     public void TryParse_InvalidInput_ReturnsFalse(string? input)
     {
         Assert.False(Isbn.TryParse(input, out var isbn));

@@ -90,6 +90,25 @@ public class RenewFineAndReportTests : LibraryServiceTestBase
     }
 
     [Fact]
+    public void Renew_MemberBlockedByFines_IsRefusedUntilPaidDown()
+    {
+        AddBook(TestData.CleanCode);
+        AddBook(TestData.DesignPatterns, title: "Design Patterns");
+        var member = Register(MembershipType.Student);
+        var lateLoan = Library.Borrow(member.Id, TestData.CleanCode).Value;
+        AdvanceDays(14 + 12);
+        Library.Return(lateLoan.Id);                          // KES 120 owed (> KES 100)
+        Library.PayFine(member.Id, 120m);
+        var loan = Library.Borrow(member.Id, TestData.DesignPatterns).Value;
+        member.ChargeFine(150m);                              // shortcut for another late return's fine
+
+        Assert.Equal([ErrorCodes.FinesTooHigh], Library.Renew(loan.Id).Errors.Select(e => e.Code));
+
+        Library.PayFine(member.Id, 50m);
+        Assert.True(Library.Renew(loan.Id).IsSuccess);
+    }
+
+    [Fact]
     public void Renew_ReportsEveryReasonAtOnce()
     {
         var (_, loan) = Borrow(MembershipType.Guest);

@@ -208,6 +208,8 @@ public sealed class LibraryService
     /// <summary>
     /// Extends an active loan by another loan period. The extension starts from the current
     /// due date, not from today, so renewing early never costs the member days.
+    /// Refused for short-loan items, overdue loans, members blocked by fines, and once the
+    /// policy's renewal allowance is used up.
     /// </summary>
     public Result<Loan> Renew(LoanId loanId)
     {
@@ -235,6 +237,15 @@ public sealed class LibraryService
             errors.Add(new DomainError(
                 ErrorCodes.RenewalOverdue,
                 $"Loan {loan.Id} was due on {loan.DueOn:yyyy-MM-dd}; overdue items must be returned, not renewed."));
+        }
+
+        // Same threshold as borrowing: otherwise a member who may not borrow could keep items forever.
+        if (member.IsBlockedByFines)
+        {
+            errors.Add(new DomainError(
+                ErrorCodes.FinesTooHigh,
+                $"{member.Name} owes {Money.Format(member.OutstandingFines)}; loans cannot be renewed while owing " +
+                $"more than {Money.Format(policy.FineBlockThreshold)}."));
         }
 
         if (loan.RenewalCount >= policy.MaxRenewals)

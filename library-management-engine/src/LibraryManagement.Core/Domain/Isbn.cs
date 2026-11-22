@@ -75,9 +75,12 @@ public sealed record Isbn
         return sum % 11 == 0;
     }
 
-    // ISBN-13: alternating weights 1 and 3, sum divisible by 10.
+    // ISBN-13: a "Bookland" EAN (978/979 prefix), alternating weights 1 and 3, sum divisible by 10.
+    // The prefix check matters: any product barcode passes the checksum alone.
     private static bool IsValidIsbn13(string s) =>
-        s.All(char.IsAsciiDigit) && WeightedSum13(s, 13) % 10 == 0;
+        s.All(char.IsAsciiDigit) &&
+        (s.StartsWith("978", StringComparison.Ordinal) || s.StartsWith("979", StringComparison.Ordinal)) &&
+        WeightedSum13(s, 13) % 10 == 0;
 
     private static string ConvertIsbn10To13(string isbn10)
     {
